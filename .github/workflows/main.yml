@@ -3,9 +3,14 @@ on:
   push:
     branches:
       - main
+
+env:
+  NODE_ENV: ${{ vars.NODE_ENV }}
+  REACT_APP_BACKEND_SERVER: ${{ vars.REACT_APP_BACKEND_SERVER }}
+
 jobs:
   # To build the project
-  build-tambola:
+  build-project:
     runs-on: ubuntu-latest
     environment: Production
     steps:
@@ -28,3 +33,6 @@ jobs:
 
       - name: Deploy to S3 bucket
         run: aws s3 sync ./build/ s3://prod-erp-crm-fe --delete
+      
+      - name: Invalidate Cloudfront
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
